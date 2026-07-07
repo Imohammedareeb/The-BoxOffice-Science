@@ -69,6 +69,11 @@ register_exception_handlers(app)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
+    # Allow any Vercel deployment (production + preview URLs) without having to
+    # hardcode the exact frontend domain in ALLOWED_ORIGINS. Works alongside the
+    # explicit list above; with allow_credentials the matched origin is echoed
+    # back (never "*"), so cookies/auth still work.
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     # BUG-04 FIX: Added "PUT", "DELETE", "PATCH" — required for:
     #   PUT  /api/production/ventures/{id}   (update venture)
