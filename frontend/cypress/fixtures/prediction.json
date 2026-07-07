@@ -1,0 +1,29 @@
+{
+  "valid_prediction": {
+    "budget": 50000000,
+    "genre": "Action",
+    "cast_tier": "B-List",
+    "target_demographic": "18-34",
+    "release_season": "Summer",
+    "distributor_split": 45,
+    "tax_rate": 30
+  },
+  "high_budget": {
+    "budget": 300000000,
+    "genre": "Animation",
+    "cast_tier": "A-List",
+    "target_demographic": "Family",
+    "release_season": "Holiday",
+    "distributor_split": 40,
+    "tax_rate": 25
+  },
+  "invalid_budget": {
+    "budget": -1,
+    "genre": "Action",
+    "cast_tier": "B-List",
+    "target_demographic": "18-34",
+    "release_season": "Summer",
+    "distributor_split": 45,
+    "tax_rate": 30
+  }
+}

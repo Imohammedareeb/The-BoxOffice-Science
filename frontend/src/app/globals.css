@@ -1,0 +1,504 @@
+/* ==========================================================
+   THE BOX OFFICE SCIENCE — Global Stylesheet
+   The Kinetic Chronicle Design System
+   ========================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Work+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ----------------------------------------------------------
+   CSS CUSTOM PROPERTIES — Design Tokens
+   ---------------------------------------------------------- */
+:root {
+  /* Brand Colors */
+  --action-red: #ee5454;
+  --hero-blue: #4c69f6;
+  --classic-yellow: #f6db35;
+  --villain-purple: #714b96;
+  --toxic-green: #008f37;         /* AA-compliant text on white: #008f37 */
+  --toxic-green-chart: #00A841;   /* Chart strokes/fills on dark bg only */
+
+  /* Surfaces (Light) */
+  --background: #f9f9fc;
+  --surface: #f9f9fc;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f3f3f6;
+  --surface-container: #eeeef0;
+  --surface-container-high: #e8e8ea;
+  --surface-container-highest: #e2e2e5;
+  --on-surface: #1a1c1e;
+  --on-surface-variant: #444655;
+  --outline: #757686;
+  --outline-variant: #c4c5d7;
+
+  /* Kinetic Scroll Progress */
+  --scroll-progress: 0%;
+}
+
+/* Dark Mode Variables */
+.dark {
+  --background: #121318;
+  --surface: #121318;
+  --surface-container-lowest: #0d0e13;
+  --surface-container-low: #1a1c21;
+  --surface-container: #1e2026;
+  --surface-container-high: #282a30;
+  --surface-container-highest: #33353b;
+  --on-surface: #e3e2ea;
+  --on-surface-variant: #c5c4d6;
+  --outline: #8f8fa0;
+  --outline-variant: #44455a;
+}
+
+/* ----------------------------------------------------------
+   BASE RESETS & TYPOGRAPHY
+   ---------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Accessibility: keyboard focus ring — visible only for keyboard navigation */
+:focus-visible {
+  outline: 3px solid #4C69F6;
+  outline-offset: 2px;
+}
+
+/* Skip to content — keyboard accessibility */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: #4C69F6;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: top 0.2s;
+}
+.skip-to-content:focus {
+  top: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--on-surface);
+  font-family: "Work Sans", sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Text selection — branded */
+::selection {
+  background-color: var(--classic-yellow);
+  color: #1a1c1e;
+}
+
+/* ----------------------------------------------------------
+   HALFTONE PATTERNS — The Comic Book Signature
+   ---------------------------------------------------------- */
+.halftone-bg {
+  background-image: radial-gradient(circle, currentColor 1.5px, transparent 1.5px);
+  background-size: 12px 12px;
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.halftone-bg-dense {
+  background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
+  background-size: 8px 8px;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.halftone-hero {
+  background-image: radial-gradient(circle, var(--hero-blue) 1.5px, transparent 1.5px);
+  background-size: 14px 14px;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.halftone-red {
+  background-image: radial-gradient(circle, var(--action-red) 1.5px, transparent 1.5px);
+  background-size: 12px 12px;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.halftone-yellow {
+  background-image: radial-gradient(circle, var(--classic-yellow) 2px, transparent 2px);
+  background-size: 16px 16px;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* ----------------------------------------------------------
+   GLASSMORPHISM — Glass + Halftone layering
+   ---------------------------------------------------------- */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass-card {
+  background: rgba(18, 19, 24, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ----------------------------------------------------------
+   KINETIC TYPOGRAPHY — Living Text
+   ---------------------------------------------------------- */
+.kinetic-text {
+  text-shadow: 4px 4px 0px var(--action-red);
+}
+
+.dark .kinetic-text {
+  text-shadow: 4px 4px 0px var(--hero-blue);
+}
+
+.kinetic-text-yellow {
+  text-shadow: 5px 5px 0px var(--classic-yellow);
+}
+
+.kinetic-text-blue {
+  text-shadow: 4px 4px 0px var(--hero-blue);
+}
+
+.kinetic-text-green {
+  text-shadow: 3px 3px 0px var(--toxic-green);
+}
+
+/* Bleed typography — crashes into adjacent panels */
+.headline-bleed {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 900;
+  font-size: clamp(3rem, 8vw, 7rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------
+   COMIC BOOK BORDERS & PANEL EFFECTS
+   ---------------------------------------------------------- */
+.panel-border {
+  border: 3px solid #000;
+  box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.dark .panel-border {
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 6px 6px 0px 0px var(--hero-blue);
+}
+
+.panel-border-hero {
+  border: 3px solid var(--hero-blue);
+  box-shadow: 6px 6px 0px 0px var(--hero-blue);
+}
+
+.panel-border-action {
+  border: 3px solid var(--action-red);
+  box-shadow: 6px 6px 0px 0px var(--action-red);
+}
+
+/* Sound effect tags: BAM! POW! */
+.sound-effect {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  display: inline-block;
+}
+
+/* ----------------------------------------------------------
+   KINETIC SCROLL PROGRESS BAR
+   ---------------------------------------------------------- */
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: var(--scroll-progress, 0%);
+  background: linear-gradient(
+    90deg,
+    var(--classic-yellow) 0%,
+    var(--action-red) 50%,
+    var(--hero-blue) 100%
+  );
+  z-index: 9999;
+  transition: width 0.05s linear;
+}
+
+/* ----------------------------------------------------------
+   BENTO GRID SYSTEM
+   ---------------------------------------------------------- */
+.bento-grid {
+  display: grid;
+  gap: 1.5rem; /* 24px cinematic gutters */
+}
+
+.bento-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-container-lowest);
+  border: 3px solid #000;
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease;
+}
+
+.dark .bento-card {
+  background: var(--surface-container);
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 8px 8px 0px 0px var(--hero-blue);
+}
+
+.bento-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 10px 10px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.dark .bento-card:hover {
+  box-shadow: 10px 10px 0px 0px var(--hero-blue);
+}
+
+/* Hero panel — always the largest, always Action Red */
+.bento-hero {
+  background: var(--action-red);
+  color: white;
+}
+
+/* ----------------------------------------------------------
+   BUTTONS — Comic Book Style
+   ---------------------------------------------------------- */
+.btn-comic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1.5rem;
+  border: 3px solid #000;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-comic:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.btn-comic:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--hero-blue) 0%, #2e4edc 100%);
+  color: white;
+}
+
+.btn-secondary {
+  background: var(--action-red);
+  color: white;
+}
+
+.btn-tertiary {
+  background: var(--classic-yellow);
+  color: #1a1c1e;
+}
+
+/* ----------------------------------------------------------
+   FORM INPUTS — Bottom-border only style
+   ---------------------------------------------------------- */
+.input-kinetic {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid var(--outline);
+  padding: 0.5rem 0;
+  font-family: "Work Sans", sans-serif;
+  font-size: 1rem;
+  color: var(--on-surface);
+  width: 100%;
+  transition: border-color 0.2s ease;
+  outline: none;
+}
+
+.input-kinetic:focus {
+  border-bottom-color: var(--hero-blue);
+}
+
+.input-kinetic::placeholder {
+  color: var(--on-surface-variant);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ----------------------------------------------------------
+   SCROLLBAR — Branded
+   ---------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-container-low);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--hero-blue);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--action-red);
+}
+
+/* ----------------------------------------------------------
+   NAVIGATION
+   ---------------------------------------------------------- */
+.nav-item-active {
+  background: var(--action-red);
+  color: white;
+}
+
+.nav-item {
+  transition: all 0.15s ease;
+}
+
+.nav-item:hover {
+  background: var(--classic-yellow);
+  color: #1a1c1e;
+  transform: translateX(3px);
+}
+
+/* ----------------------------------------------------------
+   DATA VISUALIZATION
+   ---------------------------------------------------------- */
+.chart-bar {
+  background: var(--hero-blue);
+  transition: height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.chart-bar-profit {
+  background: var(--toxic-green);
+}
+
+.chart-bar-loss {
+  background: var(--action-red);
+}
+
+/* Similarity score badges */
+.score-high {
+  color: var(--toxic-green);
+  font-weight: 900;
+}
+
+.score-mid {
+  color: var(--classic-yellow);
+  font-weight: 700;
+}
+
+.score-low {
+  color: var(--on-surface-variant);
+  font-weight: 500;
+}
+
+/* ----------------------------------------------------------
+   UTILITY CLASSES
+   ---------------------------------------------------------- */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.text-gradient-hero {
+  background: linear-gradient(135deg, var(--hero-blue) 0%, var(--villain-purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-action {
+  background: linear-gradient(135deg, var(--action-red) 0%, var(--classic-yellow) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Silver Age filter for images */
+.silver-age-filter {
+  filter: contrast(1.2) saturate(0.8) sepia(0.1);
+}
+
+/* Speed lines */
+.speed-lines {
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+}
+
+/* Shimmer loading state */
+.shimmer-loading {
+  background: linear-gradient(
+    90deg,
+    var(--surface-container) 25%,
+    var(--surface-container-high) 50%,
+    var(--surface-container) 75%
+  );
+  background-size: 200% auto;
+  animation: shimmer 1.5s linear infinite;
+}
+
+/* ----------------------------------------------------------
+   RESPONSIVE SIDEBAR LAYOUT
+   ---------------------------------------------------------- */
+.layout-with-sidebar {
+  padding-left: 16rem; /* 256px sidebar */
+  padding-top: 4rem; /* 64px navbar */
+}
+
+@media (max-width: 768px) {
+  .layout-with-sidebar {
+    padding-left: 0;
+  }
+}

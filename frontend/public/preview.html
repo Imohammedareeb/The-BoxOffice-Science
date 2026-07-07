@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Box Office Science — Interactive Preview</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Work+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      borderRadius: { DEFAULT: "0px", lg: "0px", xl: "0px", full: "9999px" },
+      fontFamily: { headline: ["Space Grotesk","sans-serif"], body: ["Work Sans","sans-serif"], label: ["Plus Jakarta Sans","sans-serif"] },
+      colors: {
+        "primary":                    "#2e4edc",
+        "primary-container":          "#4c69f6",
+        "secondary":                  "#b2282e",
+        "secondary-container":        "#ff605f",
+        "tertiary":                   "#6c5e00",
+        "tertiary-fixed":             "#fee33d",
+        "surface":                    "#f9f9fc",
+        "surface-container-lowest":   "#ffffff",
+        "surface-container-low":      "#f3f3f6",
+        "surface-container":          "#eeeef0",
+        "surface-container-high":     "#e8e8ea",
+        "surface-container-highest":  "#e2e2e5",
+        "on-surface":                 "#1a1c1e",
+        "on-surface-variant":         "#444655",
+        "outline":                    "#757686",
+        "outline-variant":            "#c4c5d7",
+        "background":                 "#f9f9fc",
+        "on-background":              "#1a1c1e",
+        /* Dark surfaces */
+        "dark-bg":                    "#121318",
+        "dark-surface":               "#121318",
+        "dark-sc-lowest":             "#0d0e13",
+        "dark-sc-low":                "#1a1c21",
+        "dark-sc":                    "#1e2026",
+        "dark-sc-high":               "#282a30",
+        "dark-sc-highest":            "#33353b",
+        "dark-on-surface":            "#e3e2ea",
+        "dark-on-sv":                 "#c5c4d6",
+      }
+    }
+  }
+}
+</script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --red:#EE5454; --blue:#4C69F6; --yellow:#F6DB35;
+    --purple:#714B96; --green:#00A841;
+    --bg:#f9f9fc; --on-bg:#1a1c1e; --sc:#eeeef0; --sc-low:#f3f3f6; --sc-lowest:#ffffff;
+    --on-sv:#444655; --outline:#c4c5d7;
+  }
+  .dark{
+    --bg:#121318; --on-bg:#e3e2ea; --sc:#1e2026; --sc-low:#1a1c21; --sc-lowest:#0d0e13;
+    --on-sv:#c5c4d6; --outline:#44455a;
+  }
+  body{background:var(--bg);color:var(--on-bg);font-family:"Work Sans",sans-serif;overflow-x:hidden;transition:background .3s,color .3s}
+  ::selection{background:var(--yellow);color:#1a1c1e}
+  .halftone{background-image:radial-gradient(circle,currentColor 1.5px,transparent 1.5px);background-size:14px 14px;opacity:.05;pointer-events:none}
+  .panel{background:var(--sc-lowest);border:3px solid #000;box-shadow:8px 8px 0 rgba(0,0,0,1);transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden}
+  .dark .panel{border-color:rgba(255,255,255,.12);box-shadow:8px 8px 0 var(--blue)}
+  .panel:hover{transform:translate(-2px,-2px);box-shadow:10px 10px 0 rgba(0,0,0,1)}
+  .dark .panel:hover{box-shadow:10px 10px 0 var(--blue)}
+  .btn{display:inline-flex;align-items:center;gap:.5rem;font-family:"Space Grotesk",sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.05em;padding:.6rem 1.2rem;border:3px solid #000;box-shadow:4px 4px 0 rgba(0,0,0,1);cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden;font-size:.75rem}
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 rgba(0,0,0,1)}
+  .btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,1)}
+  .btn-primary{background:var(--blue);color:#fff}
+  .btn-secondary{background:var(--red);color:#fff}
+  .btn-tertiary{background:var(--yellow);color:#1a1c1e}
+  .btn-ghost{background:transparent;color:var(--on-bg);border-color:rgba(0,0,0,.2)}
+  .dark .btn-ghost{border-color:rgba(255,255,255,.2);color:var(--on-bg)}
+  .kinetic{font-family:"Space Grotesk",sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:-.04em;line-height:.9}
+  .kshadow-red{text-shadow:4px 4px 0 var(--red)}
+  .kshadow-blue{text-shadow:4px 4px 0 var(--blue)}
+  .kshadow-yellow{text-shadow:5px 5px 0 var(--yellow)}
+  .kshadow-green{text-shadow:3px 3px 0 var(--green)}
+  .nav-item{transition:all .15s}
+  .nav-item:hover{background:var(--yellow);color:#1a1c1e;transform:translateX(3px)}
+  .nav-active{background:var(--red);color:#fff}
+  .page{display:none;animation:fadeIn .35s ease}
+  .page.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .bar-fill{transition:width 1s cubic-bezier(.16,1,.3,1)}
+  .progress-bar{height:4px;background:linear-gradient(90deg,var(--yellow) 0%,var(--red) 50%,var(--blue) 100%);position:fixed;top:0;left:0;width:0;z-index:9999;transition:width .05s}
+  .scroll-track{overflow-y:auto;height:calc(100vh - 4rem);scrollbar-width:thin;scrollbar-color:var(--blue) var(--sc-low)}
+  .glass{background:rgba(255,255,255,.7);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.3)}
+  .dark .glass{background:rgba(18,19,24,.75);border-color:rgba(255,255,255,.08)}
+  .score-high{color:var(--green);font-weight:900}
+  .score-mid{color:var(--blue);font-weight:700}
+  .tag{font-family:"Plus Jakarta Sans",sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 6px;background:var(--sc);border:1px solid var(--outline)}
+  .input-field{background:transparent;border:none;border-bottom:3px solid var(--blue);padding:.4rem 0;font-family:"Work Sans",sans-serif;font-size:.875rem;color:var(--on-bg);width:100%;outline:none;transition:border-color .2s}
+  select.input-field{border-bottom:3px solid var(--blue);appearance:none;cursor:pointer}
+  .range-track{-webkit-appearance:none;appearance:none;height:12px;background:var(--sc);outline:none;cursor:pointer;width:100%}
+  .range-track::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:var(--blue);border:3px solid #000;cursor:pointer}
+  .match-card{background:var(--sc-lowest);border-left:4px solid var(--green);border-top:1px solid var(--outline);border-right:1px solid var(--outline);border-bottom:1px solid var(--outline);cursor:pointer;transition:transform .15s}
+  .match-card:hover{transform:translateX(3px)}
+  .chart-bar{transition:height .8s cubic-bezier(.16,1,.3,1);display:flex;align-items:flex-end;justify-content:center}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  @keyframes pop{0%{transform:scale(.8) rotate(-5deg);opacity:0}60%{transform:scale(1.1) rotate(2deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+  .animate-pop{animation:pop .4s cubic-bezier(.34,1.56,.64,1) forwards}
+  .shimmer{background:linear-gradient(90deg,var(--sc) 25%,var(--sc-low) 50%,var(--sc) 75%);background-size:200%;animation:shimmer 1.5s linear infinite}
+  @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+  .gauge-fill{stroke-dasharray:251.2;stroke-dashoffset:251.2;transition:stroke-dashoffset 1.2s ease}
+  .tooltip{position:absolute;background:#1a1c1e;border:2px solid var(--blue);padding:8px 12px;font-family:"Space Grotesk",sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;color:#fff;pointer-events:none;z-index:100;display:none;white-space:nowrap}
+  .bento-hero{background:var(--red);color:#fff;border:3px solid #000;box-shadow:8px 8px 0 rgba(0,0,0,1)}
+  .bento-dark{background:#1a1c1e;color:#fff;border:3px solid rgba(255,255,255,.1);box-shadow:8px 8px 0 var(--blue)}
+  .bento-blue{background:var(--blue);color:#fff;border:3px solid #000;box-shadow:8px 8px 0 rgba(0,0,0,1)}
+</style>
+</head>
+<body>
+
+<!-- Scroll Progress Bar -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- TOPNAV -->
+<nav class="fixed top-0 w-full h-16 z-50 flex items-center justify-between px-4 md:px-6 border-b-4 border-black" style="background:var(--blue);box-shadow:0 4px 0 rgba(0,0,0,1)">
+  <div class="flex items-center gap-6">
+    <!-- Hamburger (mobile) -->
+    <button onclick="toggleMobileMenu()" class="md:hidden text-white p-1" id="hamburger">☰</button>
+    <!-- Logo -->
+    <div class="flex items-center gap-2 cursor-pointer" onclick="navigate('dashboard')">
+      <div class="w-8 h-8 flex items-center justify-center border-2 border-black" style="background:var(--yellow)">⚡</div>
+      <span class="font-headline font-black italic text-white text-lg uppercase tracking-tighter">BOX OFFICE <span style="color:var(--yellow)">SCI.</span></span>
+    </div>
+    <!-- Desktop nav links -->
+    <div class="hidden md:flex items-center gap-5">
+      <span onclick="navigate('oracle')" class="font-headline font-black text-xs uppercase tracking-tight text-white/80 hover:text-white cursor-pointer pb-1 border-b-2 border-transparent hover:border-white/40 transition-all">Finance</span>
+      <span onclick="navigate('scanner')" class="font-headline font-black text-xs uppercase tracking-tight text-white/80 hover:text-white cursor-pointer pb-1 border-b-2 border-transparent hover:border-white/40 transition-all">Scripts</span>
+      <span onclick="navigate('market')" class="font-headline font-black text-xs uppercase tracking-tight text-white/80 hover:text-white cursor-pointer pb-1 border-b-2 border-transparent hover:border-white/40 transition-all">Market</span>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <button onclick="toggleTheme()" id="themeBtn" class="p-2 text-white border-2 border-white/20 hover:bg-black/20 transition-colors" title="Toggle Theme">🌙</button>
+    <button class="hidden md:flex items-center gap-2 p-1.5 border-2 border-white/20 hover:bg-black/20 transition-colors" style="color:#fff;font-family:'Plus Jakarta Sans';font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em">
+      <span>👤</span><span>Areeb</span>
+    </button>
+    <div class="relative">
+      <button class="p-2 text-white">🔔</button>
+      <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full border border-blue-400" style="background:var(--yellow)"></span>
+    </div>
+  </div>
+</nav>
+
+<!-- SIDEBAR -->
+<aside id="sidebar" class="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 z-40 flex-col border-r-4 border-black hidden md:flex" style="background:var(--sc-lowest)">
+  <!-- User badge -->
+  <div class="px-5 py-5 border-b-2" style="border-color:var(--outline)">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-10 h-10 flex items-center justify-center font-headline font-black text-sm text-white border-2 border-black" style="background:var(--blue)">AR</div>
+      <div>
+        <p style="font-family:'Plus Jakarta Sans';font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--on-sv)">Venture Tier IV</p>
+        <p class="font-headline font-black text-sm uppercase">STRATEGIC COMMAND</p>
+      </div>
+    </div>
+    <button class="w-full py-3 text-white font-headline font-black text-xs uppercase tracking-widest border-2 border-black" style="background:var(--red);box-shadow:3px 3px 0 rgba(0,0,0,1)">+ New Venture</button>
+  </div>
+  <!-- Nav items -->
+  <nav class="flex flex-col py-3 flex-1">
+    <div id="nav-dashboard" onclick="navigate('dashboard')" class="nav-item nav-active flex items-center gap-4 px-5 py-3.5 cursor-pointer font-headline font-black text-sm uppercase">
+      <span>⌂</span><div><p>Dashboard</p><p style="font-size:9px;font-weight:400;text-transform:none;letter-spacing:.05em;opacity:.6">Command Center</p></div>
+    </div>
+    <div id="nav-oracle" onclick="navigate('oracle')" class="nav-item flex items-center gap-4 px-5 py-3.5 cursor-pointer font-headline font-black text-sm uppercase">
+      <span>◎</span><div><p>The Oracle</p><p style="font-size:9px;font-weight:400;text-transform:none;letter-spacing:.05em;opacity:.6">Revenue Prediction</p></div>
+    </div>
+    <div id="nav-scanner" onclick="navigate('scanner')" class="nav-item flex items-center gap-4 px-5 py-3.5 cursor-pointer font-headline font-black text-sm uppercase">
+      <span>◈</span><div><p>Script Scanner</p><p style="font-size:9px;font-weight:400;text-transform:none;letter-spacing:.05em;opacity:.6">NLP Concept Match</p></div>
+    </div>
+    <div id="nav-production" onclick="navigate('production')" class="nav-item flex items-center gap-4 px-5 py-3.5 cursor-pointer font-headline font-black text-sm uppercase">
+      <span>▶</span><div><p>Production</p><p style="font-size:9px;font-weight:400;text-transform:none;letter-spacing:.05em;opacity:.6">Active Ventures</p></div>
+    </div>
+    <div id="nav-vault" onclick="navigate('vault')" class="nav-item flex items-center gap-4 px-5 py-3.5 cursor-pointer font-headline font-black text-sm uppercase">
+      <span>▦</span><div><p>Studio Vault</p><p style="font-size:9px;font-weight:400;text-transform:none;letter-spacing:.05em;opacity:.6">Historical Data</p></div>
+    </div>
+    <div id="nav-market" onclick="navigate('market')" class="nav-item flex items-center gap-4 px-5 py-3.5 cursor-pointer font-headline font-black text-sm uppercase">
+      <span>↗</span><div><p>Market Pulse</p><p style="font-size:9px;font-weight:400;text-transform:none;letter-spacing:.05em;opacity:.6">Sentiment Engine</p></div>
+    </div>
+  </nav>
+  <!-- System status -->
+  <div class="p-5 border-t-2" style="border-color:var(--outline)">
+    <div class="flex justify-between items-center mb-2">
+      <span style="font-family:'Plus Jakarta Sans';font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--on-sv)">System Status</span>
+      <span style="color:var(--green);font-size:9px;font-weight:700;font-family:'Plus Jakarta Sans'">● ONLINE</span>
+    </div>
+    <div class="space-y-2">
+      <div>
+        <div class="flex justify-between" style="font-size:9px;font-weight:700;font-family:'Plus Jakarta Sans';text-transform:uppercase;letter-spacing:.1em"><span style="color:var(--on-sv)">AI Engine</span><span style="color:var(--blue)">94%</span></div>
+        <div style="height:3px;background:var(--sc);width:100%;margin-top:3px"><div style="height:100%;width:94%;background:var(--blue)"></div></div>
+      </div>
+      <div>
+        <div class="flex justify-between" style="font-size:9px;font-weight:700;font-family:'Plus Jakarta Sans';text-transform:uppercase;letter-spacing:.1em"><span style="color:var(--on-sv)">Market Feed</span><span style="color:var(--green)">87%</span></div>
+        <div style="height:3px;background:var(--sc);width:100%;margin-top:3px"><div style="height:100%;width:87%;background:var(--green)"></div></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Mobile drawer overlay -->
+<div id="mobileOverlay" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden"></div>
+<aside id="mobileSidebar" class="fixed left-0 top-16 h-[calc(100vh-4rem)] w-72 z-40 flex-col border-r-4 border-black overflow-y-auto hidden" style="background:var(--sc-lowest);transform:translateX(-100%);transition:transform .3s">
+  <nav class="flex flex-col py-3">
+    <div onclick="navigate('dashboard');toggleMobileMenu()" class="nav-item flex items-center gap-4 px-5 py-3.5 cursor-pointer font-headline font-black text-sm uppercase">⌂ Dashboard</div>
+    <div onclick="navigate('oracle');toggleMobileMenu()" class="nav-item flex items-center gap-4 px-5 py-3.5 cursor-pointer font-headline font-black text-sm uppercase">◎ The Oracle</div>
+    <div onclick="navigate('scanner');toggleMobileMenu()" class="nav-item flex items-center gap-4 px-5 py-3.5 cursor-pointer font-headline font-black text-sm uppercase">◈ Script Scanner</div>
+    <div onclick="navigate('production');toggleMobileMenu()" class="nav-item flex items-center gap-4 px-5 py-3.5 cursor-pointer font-headline font-black text-sm uppercase">▶ Production</div>
+    <div onclick="navigate('vault');toggleMobileMenu()" class="nav-item flex items-center gap-4 px-5 py-3.5 cursor-pointer font-headline font-black text-sm uppercase">▦ Studio Vault</div>
+    <div onclick="navigate('market');toggleMobileMenu()" class="nav-item flex items-center gap-4 px-5 py-3.5 cursor-pointer font-headline font-black text-sm uppercase">↗ Market Pulse</div>
+  </nav>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main id="mainContent" class="pt-16 md:pl-64 min-h-screen scroll-track" style="background:var(--bg)" onscroll="updateProgress(this)">
+  <div class="px-4 md:px-8 py-6 md:py-8 max-w-screen-xl mx-auto">
+
+    <!-- ██████ DASHBOARD PAGE ██████ -->
+    <div id="page-dashboard" class="page active">
+      <header class="mb-10 relative overflow-hidden p-8" style="background:var(--sc-lowest)">
+        <div class="halftone absolute inset-0"></div>
+        <div class="flex items-end gap-4 mb-3">
+          <span class="text-white px-2 py-1 font-headline font-black uppercase" style="font-size:10px;letter-spacing:.2em;background:var(--red)">PHASE 01</span>
+          <h1 class="kinetic kshadow-red" style="font-size:clamp(2.5rem,7vw,6rem);color:var(--on-bg)">The Command<br>Center</h1>
+        </div>
+        <div class="flex items-center gap-4">
+          <div style="height:4px;width:96px;background:var(--blue)"></div>
+          <p style="font-family:'Plus Jakarta Sans';font-weight:700;color:var(--blue);letter-spacing:.2em;font-size:11px;text-transform:uppercase">Real-time Venture Intelligence</p>
+        </div>
+      </header>
+
+      <!-- Bento Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 auto-rows-min">
+
+        <!-- Hero: ROI Chart -->
+        <div class="md:col-span-4 lg:col-span-4 row-span-2 panel p-8 flex flex-col gap-6">
+          <div class="absolute top-4 right-4 opacity-[0.03] pointer-events-none" style="font-size:140px">📈</div>
+          <div class="flex items-center justify-between">
+            <h2 class="font-headline font-black text-2xl uppercase flex items-center gap-3">
+              <span class="w-8 h-8 flex items-center justify-center text-white italic font-black" style="background:var(--red)">!</span>
+              Film Portfolio ROI
+            </h2>
+            <span class="tag">FY 2024</span>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-5" style="background:var(--sc);border-left:6px solid var(--blue)">
+              <p class="tag mb-1">Projected Annual Yield</p>
+              <p class="font-headline font-black text-4xl" style="color:var(--blue)">+248.4%</p>
+            </div>
+            <div class="p-5" style="background:var(--sc);border-left:6px solid var(--red)">
+              <p class="tag mb-1">Active Risk Factor</p>
+              <p class="font-headline font-black text-4xl" style="color:var(--red)">LOW</p>
+            </div>
+          </div>
+          <!-- Mini Chart -->
+          <div class="flex-1 relative overflow-hidden" style="background:#1a1c1e;min-height:160px">
+            <div class="absolute inset-0" style="background-image:radial-gradient(circle,rgba(255,255,255,.05) 1px,transparent 1px);background-size:12px 12px;pointer-events:none"></div>
+            <p class="absolute inset-0 flex items-center justify-center font-headline font-black text-4xl uppercase" style="opacity:.08;color:#fff;letter-spacing:.2em;pointer-events:none">Performance Data</p>
+            <div class="absolute bottom-4 left-4 right-4 flex items-end gap-1 h-32" id="roiChart">
+              <!-- bars rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Ventures -->
+        <div class="md:col-span-2 lg:col-span-2 bento-hero p-6 flex flex-col gap-4">
+          <div class="flex justify-between items-center">
+            <h3 class="font-headline font-black text-xl uppercase italic">Active Ventures</h3>
+            <span style="opacity:.6">🎬</span>
+          </div>
+          <div class="space-y-2" id="ventureList">
+            <!-- rendered by JS -->
+          </div>
+        </div>
+
+        <!-- AI Pulse -->
+        <div class="md:col-span-2 lg:col-span-2 panel p-6 flex flex-col gap-4">
+          <div class="absolute -right-3 -bottom-3 opacity-[0.04] pointer-events-none" style="font-size:100px">⚡</div>
+          <h3 class="font-headline font-black text-lg uppercase flex items-center gap-2">
+            <span style="color:var(--blue)">🧠</span> AI Prediction Pulse
+          </h3>
+          <div class="space-y-4" id="pulseBars"></div>
+          <div class="glass border p-4 mt-auto" style="border-color:var(--outline)">
+            <p class="text-xs italic leading-relaxed" style="color:var(--on-sv)">"Oracle AI detects +14% demographic shift toward Neo-Noir themes in APAC markets. Strategy pivot recommended."</p>
+          </div>
+        </div>
+
+        <!-- Market Trends -->
+        <div class="md:col-span-4 lg:col-span-4 panel p-0 overflow-hidden flex flex-col md:flex-row" style="background:var(--sc)">
+          <div class="p-8 md:w-2/5 flex flex-col justify-between gap-4 border-b-4 md:border-b-0 md:border-r-4 border-black/10">
+            <div>
+              <h3 class="font-headline font-black text-2xl uppercase mb-3">Global Market Trends</h3>
+              <p class="text-sm" style="color:var(--on-sv);line-height:1.6">Aggregated intelligence from 14 global exchange hubs and real-time feeds.</p>
+            </div>
+            <button class="btn btn-ghost self-start" onclick="navigate('market')">View Deep Scan →</button>
+          </div>
+          <div class="flex-1 grid grid-cols-2 gap-px" style="background:rgba(0,0,0,.06)" id="marketGrid"></div>
+        </div>
+
+        <!-- Top NLP Matches -->
+        <div class="md:col-span-2 lg:col-span-2 bento-dark p-6 flex flex-col gap-4">
+          <h3 class="font-headline font-black text-lg uppercase" style="color:#fff">📊 Top NLP Matches</h3>
+          <div class="space-y-3" id="nlpMatches"></div>
+          <button class="btn btn-tertiary w-full mt-auto text-center justify-center" onclick="navigate('scanner')">Scan New Concept</button>
+        </div>
+
+        <!-- 3 Quick Stats -->
+        <div class="md:col-span-2 lg:col-span-2 panel p-6 flex flex-col gap-2" style="border-bottom:4px solid var(--blue)">
+          <p class="tag" style="color:var(--on-sv)">Total Predicted Revenue</p>
+          <p class="font-headline font-black text-4xl" style="color:var(--blue)">$1.24B</p>
+          <p class="text-xs" style="color:var(--on-sv)">+18% vs Q3</p>
+        </div>
+        <div class="md:col-span-2 lg:col-span-2 panel p-6 flex flex-col gap-2" style="border-bottom:4px solid var(--green)">
+          <p class="tag" style="color:var(--on-sv)">Average ROI</p>
+          <p class="font-headline font-black text-4xl" style="color:var(--green)">248.4%</p>
+          <p class="text-xs" style="color:var(--on-sv)">Across 4 active ventures</p>
+        </div>
+        <div class="md:col-span-2 lg:col-span-2 panel p-6 flex flex-col gap-2" style="border-bottom:4px solid var(--yellow)">
+          <p class="tag" style="color:var(--on-sv)">Market Sentiment</p>
+          <p class="font-headline font-black text-4xl" style="color:var(--yellow)">BULLISH</p>
+          <p class="text-xs" style="color:var(--on-sv)">67% positive signal</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ██████ ORACLE PAGE ██████ -->
+    <div id="page-oracle" class="page">
+      <header class="mb-10 p-8 relative overflow-hidden" style="background:var(--sc-lowest)">
+        <div class="halftone absolute inset-0" style="color:var(--red)"></div>
+        <div class="flex items-end gap-4 mb-3">
+          <span class="text-white px-2 py-1 font-headline font-black uppercase" style="font-size:10px;letter-spacing:.2em;background:var(--red)">PHASE 02</span>
+          <h1 class="kinetic kshadow-blue" style="font-size:clamp(2.5rem,6vw,5rem);color:var(--on-bg)">The Oracle</h1>
+        </div>
+        <div class="flex items-center gap-4"><div style="height:4px;width:96px;background:var(--red)"></div><p style="font-family:'Plus Jakarta Sans';font-weight:700;color:var(--red);letter-spacing:.2em;font-size:11px;text-transform:uppercase">Revenue Prediction & ROI Intelligence</p></div>
+      </header>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <!-- Prediction Engine -->
+        <div class="panel p-0 flex flex-col">
+          <div class="px-8 py-3 flex items-center gap-3" style="background:var(--blue)">
+            <span style="color:#fff;font-size:14px">📈</span>
+            <span class="font-headline font-black text-sm uppercase tracking-widest text-white">Revenue Prediction Engine</span>
+          </div>
+          <div class="p-6 md:p-8 flex flex-col gap-6">
+            <!-- Budget slider -->
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <p class="tag">Production Budget</p>
+                <p class="font-headline font-black text-3xl" style="color:var(--blue)" id="budgetDisplay">$50M</p>
+              </div>
+              <input type="range" class="range-track w-full" min="5000000" max="500000000" step="5000000" value="50000000" oninput="updateBudget(this.value)" id="budgetSlider"/>
+              <div class="flex justify-between mt-1"><span class="tag">$5M</span><span class="tag">$500M</span></div>
+            </div>
+            <!-- Select inputs -->
+            <div class="grid grid-cols-2 gap-5">
+              <div><p class="tag mb-1.5">Genre</p><select class="input-field" id="genreSelect"><option>Action</option><option>Sci-Fi</option><option>Animation</option><option>Comedy</option><option>Drama</option><option>Horror</option><option>Thriller</option><option>Fantasy</option></select></div>
+              <div><p class="tag mb-1.5">Cast Tier</p><select class="input-field" id="castSelect"><option>A-List</option><option selected>B-List</option><option>Mixed</option><option>Newcomer</option></select></div>
+              <div><p class="tag mb-1.5">Demographic</p><select class="input-field"><option>18–34</option><option>25–44</option><option>All Ages</option><option>Family</option></select></div>
+              <div><p class="tag mb-1.5">Release Season</p><select class="input-field" id="seasonSelect"><option>Summer</option><option>Holiday</option><option>Spring</option><option>Fall</option><option>Winter</option></select></div>
+            </div>
+            <!-- Percent sliders -->
+            <div class="grid grid-cols-2 gap-5 p-5" style="background:var(--sc)">
+              <div>
+                <p class="tag mb-1.5">Distributor Split</p>
+                <div class="flex items-center gap-3">
+                  <div style="flex:1;height:8px;background:var(--sc-high,#e2e2e5);position:relative"><div id="distFill" style="height:100%;background:var(--purple);width:45%"></div></div>
+                  <span class="font-headline font-black text-xl" style="color:var(--purple)" id="distDisplay">45%</span>
+                </div>
+                <input type="range" class="range-track w-full mt-1" min="30" max="60" value="45" oninput="document.getElementById('distFill').style.width=(((this.value-30)/30)*100)+'%';document.getElementById('distDisplay').textContent=this.value+'%'" style="height:4px"/>
+              </div>
+              <div>
+                <p class="tag mb-1.5">Tax Rate</p>
+                <div class="flex items-center gap-3">
+                  <div style="flex:1;height:8px;background:var(--sc-high,#e2e2e5);position:relative"><div id="taxFill" style="height:100%;background:var(--red);width:50%"></div></div>
+                  <span class="font-headline font-black text-xl" style="color:var(--red)" id="taxDisplay">30%</span>
+                </div>
+                <input type="range" class="range-track w-full mt-1" min="10" max="50" value="30" oninput="document.getElementById('taxFill').style.width=(((this.value-10)/40)*100)+'%';document.getElementById('taxDisplay').textContent=this.value+'%'" style="height:4px"/>
+              </div>
+            </div>
+            <!-- Live preview strip -->
+            <div class="flex gap-px" id="previewStrip"></div>
+            <!-- Crunch button -->
+            <button id="crunchBtn" onclick="crunchNumbers()" class="w-full py-5 font-headline font-black text-base uppercase tracking-widest text-white border-4 border-black transition-all" style="background:var(--blue);box-shadow:6px 6px 0 rgba(0,0,0,1)">
+              ⚡ CRUNCH THE NUMBERS
+            </button>
+          </div>
+        </div>
+        <!-- Budget Visualizer (mini) -->
+        <div class="panel p-0 flex flex-col">
+          <div class="px-8 py-3 flex items-center gap-3" style="background:var(--red)">
+            <span style="color:#fff;font-size:14px">📊</span>
+            <span class="font-headline font-black text-sm uppercase tracking-widest text-white">Budget Visualizer</span>
+          </div>
+          <div class="p-6 md:p-8 flex flex-col gap-5 flex-1">
+            <h3 class="font-headline font-black text-xl uppercase">Genre ROI Comparison</h3>
+            <div class="flex items-end gap-2 h-48 w-full" id="genreChart"></div>
+            <div class="grid grid-cols-3 gap-2 mt-4">
+              <div class="p-3" style="background:var(--sc)"><p class="tag" style="color:var(--on-sv)">Avg Budget</p><p class="font-headline font-black text-xl" style="color:var(--blue)">$118M</p></div>
+              <div class="p-3" style="background:var(--sc)"><p class="tag" style="color:var(--on-sv)">Avg Revenue</p><p class="font-headline font-black text-xl" style="color:var(--green)">$376M</p></div>
+              <div class="p-3" style="background:var(--sc)"><p class="tag" style="color:var(--on-sv)">Avg ROI</p><p class="font-headline font-black text-xl" style="color:var(--red)">+219%</p></div>
+            </div>
+            <div class="mt-auto p-4 border-l-4" style="background:var(--sc);border-color:var(--yellow)">
+              <p class="tag mb-1">Season Analysis</p>
+              <div class="space-y-2 mt-3" id="seasonBars"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ██████ SCANNER PAGE ██████ -->
+    <div id="page-scanner" class="page">
+      <header class="mb-10 p-8 relative overflow-hidden" style="background:var(--sc-lowest)">
+        <div class="halftone absolute inset-0" style="color:var(--purple)"></div>
+        <div class="flex items-end gap-4 mb-3">
+          <span class="text-white px-2 py-1 font-headline font-black uppercase" style="font-size:10px;letter-spacing:.2em;background:var(--purple)">PHASE 03</span>
+          <h1 class="kinetic" style="font-size:clamp(2.5rem,6vw,5rem);color:var(--on-bg);text-shadow:4px 4px 0 var(--purple)">Script Scanner</h1>
+        </div>
+        <div class="flex items-center gap-4"><div style="height:4px;width:96px;background:var(--purple)"></div><p style="font-family:'Plus Jakarta Sans';font-weight:700;color:var(--purple);letter-spacing:.2em;font-size:11px;text-transform:uppercase">NLP Concept Matching Engine</p></div>
+      </header>
+      <div class="max-w-4xl mx-auto">
+        <div class="panel p-0 flex flex-col">
+          <div class="px-8 py-3 flex items-center gap-3" style="background:var(--purple)">
+            <span style="color:#fff">🧠</span>
+            <span class="font-headline font-black text-sm uppercase tracking-widest text-white">NLP Concept Recommender</span>
+          </div>
+          <div class="p-6 md:p-8 flex flex-col gap-5">
+            <div>
+              <p class="tag mb-2">Describe Your Concept</p>
+              <div class="relative">
+                <textarea id="conceptInput" rows="3" placeholder="e.g. A gritty reboot of a space opera with female ensemble cast..." class="w-full p-4 text-sm outline-none resize-none" style="background:var(--sc);border-bottom:3px solid var(--purple);color:var(--on-bg);font-family:'Work Sans';"></textarea>
+              </div>
+            </div>
+            <div>
+              <p class="tag mb-2">Quick Examples:</p>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="document.getElementById('conceptInput').value=this.textContent" class="tag cursor-pointer hover:border-purple-400 transition-colors" style="color:var(--purple)">Gritty space opera ensemble cast</button>
+                <button onclick="document.getElementById('conceptInput').value=this.textContent" class="tag cursor-pointer hover:border-purple-400 transition-colors" style="color:var(--purple)">Psychological thriller near-future</button>
+                <button onclick="document.getElementById('conceptInput').value=this.textContent" class="tag cursor-pointer hover:border-purple-400 transition-colors" style="color:var(--purple)">Cyberpunk action practical stunts</button>
+                <button onclick="document.getElementById('conceptInput').value=this.textContent" class="tag cursor-pointer hover:border-purple-400 transition-colors" style="color:var(--purple)">Mythological fantasy epic A-list</button>
+              </div>
+            </div>
+            <button onclick="scanConcepts()" id="scanBtn" class="btn w-full justify-center py-4" style="background:var(--purple);color:#fff;border-color:#000">🔍 Scan for Matching IPs</button>
+            <div id="scannerResults" class="space-y-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ██████ PRODUCTION PAGE ██████ -->
+    <div id="page-production" class="page">
+      <header class="mb-10 p-8 relative overflow-hidden" style="background:var(--sc-lowest)">
+        <div class="halftone absolute inset-0" style="color:var(--blue)"></div>
+        <div class="flex items-end gap-4 mb-3">
+          <span class="text-white px-2 py-1 font-headline font-black uppercase" style="font-size:10px;letter-spacing:.2em;background:var(--blue)">PHASE 04</span>
+          <h1 class="kinetic kshadow-blue" style="font-size:clamp(2.5rem,6vw,5rem);color:var(--on-bg)">Production</h1>
+        </div>
+        <div class="flex items-center gap-4"><div style="height:4px;width:96px;background:var(--blue)"></div><p style="font-family:'Plus Jakarta Sans';font-weight:700;color:var(--blue);letter-spacing:.2em;font-size:11px;text-transform:uppercase">Active Venture Tracker</p></div>
+      </header>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="prodStats"></div>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6" id="ventureCards"></div>
+    </div>
+
+    <!-- ██████ VAULT PAGE ██████ -->
+    <div id="page-vault" class="page">
+      <header class="mb-10 p-8 relative overflow-hidden" style="background:var(--sc-lowest)">
+        <div class="halftone absolute inset-0" style="color:var(--green)"></div>
+        <div class="flex items-end gap-4 mb-3">
+          <span class="text-white px-2 py-1 font-headline font-black uppercase" style="font-size:10px;letter-spacing:.2em;background:var(--green)">PHASE 05</span>
+          <h1 class="kinetic kshadow-green" style="font-size:clamp(2.5rem,6vw,5rem);color:var(--on-bg)">Studio Vault</h1>
+        </div>
+        <div class="flex items-center gap-4"><div style="height:4px;width:96px;background:var(--green)"></div><p style="font-family:'Plus Jakarta Sans';font-weight:700;color:var(--green);letter-spacing:.2em;font-size:11px;text-transform:uppercase">Historical IP & Financial Archive</p></div>
+      </header>
+      <div class="panel p-0 mb-6">
+        <div class="p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div class="flex items-center gap-2 flex-1" style="border-bottom:3px solid var(--green)">
+            <span style="color:var(--green)">🔍</span>
+            <input id="vaultSearch" oninput="filterVault()" placeholder="SEARCH TITLE OR DIRECTOR..." class="bg-transparent outline-none text-sm uppercase tracking-widest flex-1" style="font-family:'Plus Jakarta Sans';color:var(--on-bg)"/>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="sortVault('roi')" class="tag cursor-pointer hover:bg-green-100 active:bg-green-200" id="sort-roi" style="border-color:var(--green);color:var(--green)">ROI ↓</button>
+            <button onclick="sortVault('revenue')" class="tag cursor-pointer" id="sort-revenue">Revenue</button>
+            <button onclick="sortVault('year')" class="tag cursor-pointer" id="sort-year">Year</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel p-0 overflow-x-auto">
+        <table class="w-full" id="vaultTable" style="font-family:'Plus Jakarta Sans';font-size:11px"></table>
+      </div>
+    </div>
+
+    <!-- ██████ MARKET PAGE ██████ -->
+    <div id="page-market" class="page">
+      <header class="mb-10 p-8 relative overflow-hidden" style="background:var(--sc-lowest)">
+        <div class="halftone absolute inset-0" style="color:var(--yellow)"></div>
+        <div class="flex items-end gap-4 mb-3">
+          <span class="text-black px-2 py-1 font-headline font-black uppercase" style="font-size:10px;letter-spacing:.2em;background:var(--yellow)">PHASE 06</span>
+          <h1 class="kinetic kshadow-yellow" style="font-size:clamp(2.5rem,6vw,5rem);color:var(--on-bg)">Market Pulse</h1>
+        </div>
+        <div class="flex items-center gap-4"><div style="height:4px;width:96px;background:var(--yellow)"></div><p style="font-family:'Plus Jakarta Sans';font-weight:700;color:var(--yellow-600,#6c5e00);letter-spacing:.2em;font-size:11px;text-transform:uppercase">Global Sentiment & Genre Intelligence</p></div>
+      </header>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- Gauge -->
+        <div class="bento-dark p-6 flex flex-col items-center justify-center gap-4 relative overflow-hidden">
+          <div class="absolute inset-0" style="background-image:radial-gradient(circle,rgba(255,255,255,.06) 1.5px,transparent 1.5px);background-size:12px 12px;pointer-events:none"></div>
+          <p style="font-family:'Plus Jakarta Sans';font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.5)">Overall Market Sentiment</p>
+          <svg viewBox="0 0 200 110" width="200" height="110">
+            <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="16"/>
+            <path id="gaugeFill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#00A841" stroke-width="16" stroke-dasharray="251.2" stroke-dashoffset="251.2" class="gauge-fill"/>
+            <line id="gaugeNeedle" x1="100" y1="100" x2="100" y2="28" stroke="#00A841" stroke-width="3" transform="rotate(-90,100,100)" style="transition:transform 1.3s cubic-bezier(.34,1.56,.64,1)"/>
+            <circle cx="100" cy="100" r="6" fill="#00A841" id="gaugeDot"/>
+          </svg>
+          <p class="font-headline font-black text-4xl" style="color:var(--green)" id="sentimentScore">74%</p>
+          <p class="font-headline font-black text-sm uppercase" style="color:var(--green)">BULLISH</p>
+        </div>
+        <!-- Genre momentum -->
+        <div class="panel p-6 flex flex-col gap-4">
+          <h3 class="font-headline font-black text-lg uppercase">⚡ Genre Momentum</h3>
+          <div class="space-y-3" id="genreMomentum"></div>
+        </div>
+        <!-- Global markets -->
+        <div class="panel p-0 md:col-span-2 xl:col-span-1">
+          <div class="p-5 border-b-2" style="border-color:var(--outline)">
+            <h3 class="font-headline font-black text-lg uppercase">🌍 Global Markets</h3>
+          </div>
+          <div class="grid grid-cols-2 gap-px" style="background:rgba(0,0,0,.06)" id="marketCards"></div>
+        </div>
+        <!-- AI Insights feed -->
+        <div class="bento-blue p-6 flex flex-col gap-5 md:col-span-2 xl:col-span-3">
+          <h3 class="font-headline font-black text-xl uppercase" style="color:var(--yellow)">✦ Oracle Intelligence Feed</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="insightFeed"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+
+  <!-- Mobile bottom nav -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 z-50 flex items-center justify-around px-2 border-t-4 border-black" style="background:var(--sc-lowest)">
+    <button onclick="navigate('dashboard')" class="flex flex-col items-center gap-0.5 min-w-12" style="color:var(--red)"><span>⌂</span><span style="font-size:9px;font-family:'Space Grotesk';font-weight:900;text-transform:uppercase">Home</span></button>
+    <button onclick="navigate('oracle')" class="flex flex-col items-center gap-0.5 min-w-12" style="color:var(--on-sv)"><span>◎</span><span style="font-size:9px;font-family:'Space Grotesk';font-weight:900;text-transform:uppercase">Oracle</span></button>
+    <button onclick="navigate('scanner')" class="w-12 h-12 -mt-6 border-4 border-black flex items-center justify-center font-headline font-black text-xl text-white" style="background:var(--red);box-shadow:3px 3px 0 rgba(0,0,0,1)">+</button>
+    <button onclick="navigate('vault')" class="flex flex-col items-center gap-0.5 min-w-12" style="color:var(--on-sv)"><span>▦</span><span style="font-size:9px;font-family:'Space Grotesk';font-weight:900;text-transform:uppercase">Vault</span></button>
+    <button onclick="navigate('market')" class="flex flex-col items-center gap-0.5 min-w-12" style="color:var(--on-sv)"><span>↗</span><span style="font-size:9px;font-family:'Space Grotesk';font-weight:900;text-transform:uppercase">Market</span></button>
+  </nav>
+</main>
+
+<!-- FAB -->
+<button class="hidden md:flex fixed bottom-8 right-8 z-30 w-14 h-14 items-center justify-center font-headline font-black text-2xl text-black border-4 border-black" style="background:var(--yellow);box-shadow:4px 4px 0 rgba(0,0,0,1);transition:transform .2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''" onclick="navigate('oracle')">+</button>
+
+<!-- Results Modal -->
+<div id="resultsModal" class="fixed inset-0 z-50 items-center justify-center p-4 hidden" style="background:rgba(0,0,0,.7);backdrop-filter:blur(4px)">
+  <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto border-4 border-black" style="background:var(--sc-lowest);box-shadow:12px 12px 0 rgba(0,0,0,1)">
+    <div class="relative overflow-hidden p-8" style="background:#1a1c1e">
+      <div class="absolute inset-0" style="background-image:radial-gradient(circle,rgba(255,255,255,.06) 1.5px,transparent 1.5px);background-size:12px 12px;pointer-events:none"></div>
+      <div class="flex items-start justify-between relative z-10">
+        <div>
+          <span class="inline-flex items-center gap-2 px-3 py-1 font-headline font-black text-xs uppercase tracking-widest text-white mb-3 animate-pop" style="background:var(--green)">✓ PREDICTION COMPLETE</span>
+          <h2 class="font-headline font-black text-4xl uppercase text-white" style="text-shadow:3px 3px 0 var(--blue)">ORACLE<br>RESULTS</h2>
+        </div>
+        <button onclick="closeModal()" class="text-white/60 hover:text-white p-2 relative z-10">✕</button>
+      </div>
+      <div class="flex flex-wrap items-end gap-6 mt-6 relative z-10">
+        <div><p class="tag text-white/40 mb-1">Net ROI</p><p id="roiResult" class="font-headline font-black text-6xl" style="color:var(--green)">+0%</p></div>
+        <div><p class="tag text-white/40 mb-1">Net Profit</p><p id="profitResult" class="font-headline font-black text-4xl" style="color:var(--green)">$0</p></div>
+        <div><p class="tag text-white/40 mb-1">Risk Level</p><p id="riskResult" class="font-headline font-black text-2xl px-3 py-1 border-2" style="color:var(--green);border-color:var(--green)">LOW</p></div>
+      </div>
+    </div>
+    <div class="p-6">
+      <h3 class="font-headline font-black text-lg uppercase mb-5">Financial Breakdown</h3>
+      <div id="breakdownBars" class="space-y-4 mb-6"></div>
+      <div class="flex gap-3">
+        <button onclick="closeModal()" class="btn btn-primary flex-1 justify-center">Save to Vault</button>
+        <button onclick="closeModal()" class="btn btn-ghost">↺ Recalculate</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────
+let currentPage = 'dashboard';
+let isDark = false;
+let vaultSortKey = 'roi';
+
+// ── Data ───────────────────────────────────────────────────
+const VENTURES = [
+  {title:"NEON NIGHTS", phase:"Production Phase III", pct:72, color:"#4C69F6"},
+  {title:"GHOST PROTOCOL 8", phase:"Post-Production", pct:91, color:"#F6DB35"},
+  {title:"VOID SEEKER II", phase:"Initial Casting", pct:18, color:"#00A841"},
+  {title:"CHROME DEITY 2", phase:"Script Development", pct:5, color:"#714B96"},
+];
+const MARKETS = [
+  {region:"North America", growth:4.1, flag:"🇺🇸"},
+  {region:"East Asia", growth:7.8, flag:"🇨🇳"},
+  {region:"Europe", growth:2.3, flag:"🇪🇺"},
+  {region:"South Asia", growth:9.1, flag:"🇮🇳"},
+  {region:"Middle East", growth:-1.2, flag:"🌍"},
+  {region:"Latin America", growth:3.7, flag:"🇧🇷"},
+];
+const NLP_TOP = [
+  {title:"THE ETERNAL GLOW", score:94, genre:"Sci-Fi", rev:"$892M"},
+  {title:"NEON PROTOCOL", score:87, genre:"Action", rev:"$634M"},
+  {title:"FRACTURED SKY", score:81, genre:"Thriller", rev:"$441M"},
+];
+const VAULT_RECORDS = [
+  {title:"CHROME DEITY",genre:"Fantasy",year:2021,budget:250,revenue:1240,roi:296,director:"Aria Voss"},
+  {title:"THE ETERNAL GLOW",genre:"Sci-Fi",year:2023,budget:185,revenue:892,roi:382,director:"Jonas Reid"},
+  {title:"GHOST PROTOCOL 7",genre:"Action",year:2023,budget:160,revenue:820,roi:213,director:"Sable Crown"},
+  {title:"NEON PROTOCOL",genre:"Action",year:2022,budget:120,revenue:634,roi:228,director:"Lyra Mune"},
+  {title:"VOID SEEKER",genre:"Sci-Fi",year:2022,budget:95,revenue:378,roi:198,director:"Marcus Sol"},
+  {title:"FRACTURED SKY",genre:"Thriller",year:2023,budget:80,revenue:441,roi:201,director:"Iris Vale"},
+  {title:"BLOOD CARNIVAL",genre:"Horror",year:2021,budget:18,revenue:142,roi:689,director:"Dex Cole"},
+  {title:"STARFALL",genre:"Animation",year:2022,budget:170,revenue:610,roi:259,director:"Zola Prim"},
+];
+const GENRE_COLORS = {Action:"#EE5454","Sci-Fi":"#4C69F6",Fantasy:"#714B96",Thriller:"#00A841",Horror:"#1a1c1e",Animation:"#F6DB35",Comedy:"#F6DB35",Drama:"#714B96"};
+const GENRE_ROI = [184,149,219,140,118,252,140,180];
+const GENRE_NAMES = ["Action","Sci-Fi","Anim","Comedy","Drama","Horror","Thriller","Fantasy"];
+const SEASONS_DATA = [{s:"Summer",pct:91,c:"#EE5454"},{s:"Holiday",pct:84,c:"#4C69F6"},{s:"Spring",pct:53,c:"#00A841"},{s:"Fall",pct:43,c:"#F6DB35"},{s:"Winter",pct:32,c:"#714B96"}];
+const GENRE_MOMENTUM = [
+  {genre:"Sci-Fi",trend:7.8,color:"#4C69F6"},{genre:"Action",trend:4.2,color:"#EE5454"},
+  {genre:"Animation",trend:5.5,color:"#F6DB35"},{genre:"Horror",trend:2.1,color:"#714B96"},
+  {genre:"Drama",trend:-1.2,color:"#757686"},
+];
+const INSIGHTS = [
+  "Neural analysis detects +14% shift toward Neo-Noir themes in APAC markets. Pivot recommended for Q4.",
+  "Summer window saturation at 89%. Holiday slate has 2.3× higher break-even probability.",
+  "Ensemble casts outperforming solo-lead films by +31% in franchise-starter scenarios.",
+  "Streaming vs. theatrical inflection point: day-and-date releases showing +18% total revenue.",
+];
+const NLP_DB = [
+  {title:"THE ETERNAL GLOW",genre:"Sci-Fi",year:2023,bo:892,budget:185,roi:382,desc:"A gritty space opera about the last human colony.",tags:["space","survival","epic","vfx-heavy"]},
+  {title:"NEON PROTOCOL",genre:"Action",year:2022,bo:634,budget:120,roi:228,desc:"A cyberpunk thriller in a dystopian megacity.",tags:["cyberpunk","action","AI","urban"]},
+  {title:"FRACTURED SKY",genre:"Thriller",year:2023,bo:441,budget:80,roi:201,desc:"Psychological thriller aboard a near-future space station.",tags:["psychological","space","mystery"]},
+  {title:"CHROME DEITY",genre:"Fantasy",year:2021,bo:1240,budget:250,roi:296,desc:"Mythological fantasy with warring pantheons.",tags:["mythology","fantasy","epic","vfx-heavy"]},
+  {title:"GHOST PROTOCOL 7",genre:"Action",year:2023,bo:820,budget:160,roi:213,desc:"Globe-trotting spy saga with practical stunts.",tags:["spy","action","franchise"]},
+  {title:"STARFALL",genre:"Animation",year:2022,bo:610,budget:170,roi:259,desc:"Animated adventure about a girl and the stars.",tags:["animation","family","wonder"]},
+];
+
+// ── Navigation ─────────────────────────────────────────────
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('[id^="nav-"]').forEach(n=>{
+    n.classList.remove('nav-active');
+    n.style.cssText='';
+  });
+  const navEl = document.getElementById('nav-'+page);
+  if(navEl){navEl.classList.add('nav-active');navEl.style.cssText='background:var(--red);color:#fff';}
+  currentPage = page;
+  if(page==='market') initMarketPage();
+  if(page==='vault') renderVault();
+  if(page==='production') renderProduction();
+  if(page==='oracle') renderOracleCharts();
+}
+
+// ── Theme ──────────────────────────────────────────────────
+function toggleTheme(){
+  isDark=!isDark;
+  document.documentElement.classList.toggle('dark',isDark);
+  document.getElementById('themeBtn').textContent=isDark?'☀️':'🌙';
+}
+
+// ── Mobile Menu ────────────────────────────────────────────
+let mobileOpen=false;
+function toggleMobileMenu(){
+  mobileOpen=!mobileOpen;
+  const s=document.getElementById('mobileSidebar');
+  const o=document.getElementById('mobileOverlay');
+  s.style.display=mobileOpen?'flex':'none';
+  o.style.display=mobileOpen?'block':'none';
+  s.style.transform=mobileOpen?'translateX(0)':'translateX(-100%)';
+}
+
+// ── Scroll Progress ────────────────────────────────────────
+function updateProgress(el){
+  const pct=(el.scrollTop/(el.scrollHeight-el.clientHeight))*100;
+  document.getElementById('progressBar').style.width=pct+'%';
+}
+
+// ── Dashboard init ─────────────────────────────────────────
+function initDashboard(){
+  // ROI chart bars
+  const barData=[40,65,55,85,95,70,88,100];
+  const barColors=barData.map((v,i)=>i===4?'#EE5454':'#4C69F6');
+  document.getElementById('roiChart').innerHTML=barData.map((v,i)=>`
+    <div class="chart-bar flex-1" style="background:${barColors[i]};height:${v}%;min-width:16px;position:relative" title="Month ${i+1}">
+      <div style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-family:'Space Grotesk';font-size:9px;font-weight:900;color:#fff;opacity:.6">M${i+1}</div>
+    </div>`).join('');
+
+  // Active ventures
+  document.getElementById('ventureList').innerHTML=VENTURES.map(v=>`
+    <div style="background:rgba(0,0,0,.2);padding:12px 16px;cursor:pointer;transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(0,0,0,.2)'">
+      <div class="flex justify-between items-start">
+        <div><p class="font-headline font-black text-sm">${v.title}</p><p style="font-size:9px;color:rgba(255,255,255,.6)">${v.phase}</p></div>
+        <span style="color:rgba(255,255,255,.6)">→</span>
+      </div>
+      <div style="margin-top:8px;height:3px;background:rgba(255,255,255,.15)"><div style="height:100%;width:${v.pct}%;background:${v.pct>80?'#F6DB35':'#fff'};transition:width 1s ease"></div></div>
+    </div>`).join('');
+
+  // AI Pulse bars
+  const pulseItems=[{l:"Sensorial Reach",p:92,c:"#4C69F6"},{l:"Narrative Cohesion",p:78,c:"#F6DB35"},{l:"Market Penetration",p:84,c:"#00A841"}];
+  document.getElementById('pulseBars').innerHTML=pulseItems.map(item=>`
+    <div>
+      <div style="display:flex;justify-content:space-between;font-family:'Plus Jakarta Sans';font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px">
+        <span style="color:var(--on-sv)">${item.l}</span><span style="color:${item.c}">${item.p}%</span>
+      </div>
+      <div style="height:12px;background:var(--sc);width:100%"><div style="height:100%;width:${item.p}%;background:${item.c};transition:width 1s ease"></div></div>
+    </div>`).join('');
+
+  // Market grid
+  const mktItems=MARKETS.slice(0,4);
+  document.getElementById('marketGrid').innerHTML=mktItems.map(m=>`
+    <div style="background:var(--sc-lowest);padding:20px;cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--sc)'" onmouseout="this.style.background='var(--sc-lowest)'">
+      <span style="font-size:16px">${m.flag}</span>
+      <p style="font-family:'Plus Jakarta Sans';font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--on-sv);margin:6px 0 2px">${m.region}</p>
+      <p class="font-headline font-black text-2xl" style="color:${m.growth>=0?'#4C69F6':'#EE5454'}">${m.growth>=0?'+':''}${m.growth}%</p>
+    </div>`).join('');
+
+  // NLP matches
+  document.getElementById('nlpMatches').innerHTML=NLP_TOP.map((m,i)=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);cursor:pointer">
+      <span class="font-headline font-black" style="font-size:28px;opacity:.2;color:#fff;min-width:24px">${i+1}</span>
+      <div style="flex:1">
+        <p class="font-headline font-black text-sm" style="color:#fff">${m.title}</p>
+        <p style="font-size:9px;color:rgba(255,255,255,.4);font-family:'Plus Jakarta Sans'">${m.genre} · ${m.rev}</p>
+      </div>
+      <span class="font-headline font-black text-lg" style="color:${m.score>=90?'#00A841':m.score>=80?'#4C69F6':'#F6DB35'}">${m.score}%</span>
+    </div>`).join('');
+}
+
+// ── Budget Slider ──────────────────────────────────────────
+function updateBudget(val){
+  const m=val/1000000;
+  document.getElementById('budgetDisplay').textContent=m>=1000?`$${(m/1000).toFixed(1)}B`:`$${Math.round(m)}M`;
+  updatePreviewStrip();
+}
+
+function updatePreviewStrip(){
+  const budget=document.getElementById('budgetSlider')?.value||50000000;
+  const genre=document.getElementById('genreSelect')?.value||'Action';
+  const cast=document.getElementById('castSelect')?.value||'B-List';
+  const season=document.getElementById('seasonSelect')?.value||'Summer';
+  const m=budget/1000000;
+  const budStr=m>=1000?`$${(m/1000).toFixed(1)}B`:`$${Math.round(m)}M`;
+  const items=[{l:"Budget",v:budStr,c:"#4C69F6"},{l:"Genre",v:genre,c:"#EE5454"},{l:"Cast",v:cast,c:"#F6DB35"},{l:"Season",v:season,c:"#00A841"}];
+  const el=document.getElementById('previewStrip');
+  if(el) el.innerHTML=items.map(i=>`
+    <div style="flex:1;padding:8px 10px;display:flex;flex-direction:column;align-items:center;background:var(--sc);border-bottom:3px solid ${i.c}">
+      <span style="font-family:'Plus Jakarta Sans';font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--on-sv)">${i.l}</span>
+      <span class="font-headline font-black" style="font-size:11px;color:${i.c};margin-top:2px">${i.v}</span>
+    </div>`).join('');
+}
+
+// ── Oracle Charts ──────────────────────────────────────────
+function renderOracleCharts(){
+  updatePreviewStrip();
+  // Genre ROI bar chart
+  const gcEl=document.getElementById('genreChart');
+  if(gcEl) gcEl.innerHTML=GENRE_ROI.map((roi,i)=>`
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer" title="${GENRE_NAMES[i]}: +${roi}% ROI">
+      <span class="font-headline font-black" style="font-size:10px;color:${Object.values(GENRE_COLORS)[i]||'#4C69F6'}">+${roi}%</span>
+      <div style="flex:1;width:100%;display:flex;align-items:flex-end">
+        <div style="width:100%;background:${Object.values(GENRE_COLORS)[i]||'#4C69F6'};height:${(roi/280)*100}%;min-height:8px;transition:height .8s ease"></div>
+      </div>
+      <span style="font-family:'Plus Jakarta Sans';font-size:8px;font-weight:700;text-transform:uppercase;color:var(--on-sv);writing-mode:vertical-lr;transform:rotate(180deg);height:40px">${GENRE_NAMES[i]}</span>
+    </div>`).join('');
+
+  // Season bars
+  const sbEl=document.getElementById('seasonBars');
+  if(sbEl) sbEl.innerHTML=SEASONS_DATA.map(s=>`
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-family:'Plus Jakarta Sans';font-size:9px;font-weight:700;text-transform:uppercase;color:${s.c};width:50px">${s.s}</span>
+      <div style="flex:1;height:10px;background:var(--sc-high,#e2e2e5)"><div style="height:100%;width:${s.pct}%;background:${s.c};transition:width .8s ease"></div></div>
+      <span style="font-family:'Plus Jakarta Sans';font-size:9px;font-weight:700;color:${s.c};width:30px">${s.pct}%</span>
+    </div>`).join('');
+}
+
+// ── Crunch Numbers ─────────────────────────────────────────
+const GM={Action:2.8,"Sci-Fi":2.4,Animation:3.1,Comedy:1.9,Drama:1.5,Horror:2.2,Thriller:1.8,Fantasy:2.6};
+const CM={"A-List":1.8,"B-List":1.3,Mixed:1.5,Newcomer:0.9};
+const SM={Summer:1.4,Holiday:1.5,Spring:1.1,Fall:1.0,Winter:0.9};
+
+function crunchNumbers(){
+  const btn=document.getElementById('crunchBtn');
+  const budget=parseFloat(document.getElementById('budgetSlider').value);
+  const genre=document.getElementById('genreSelect').value;
+  const cast=document.getElementById('castSelect').value;
+  const season=document.getElementById('seasonSelect').value;
+  const distSplit=parseFloat(document.getElementById('distDisplay').textContent);
+  const taxRate=parseFloat(document.getElementById('taxDisplay').textContent);
+
+  // Loading state
+  btn.textContent='';
+  btn.style.background='#F6DB35';
+  btn.style.color='#1a1c1e';
+  let dots=0;
+  const loading=setInterval(()=>{
+    dots=(dots%3)+1;
+    btn.textContent='ORACLE IS THINKING'+'.'.repeat(dots);
+  },300);
+
+  setTimeout(()=>{
+    clearInterval(loading);
+    // Compute
+    const gm=GM[genre]||2.0, cm=CM[cast]||1.3, seasM=SM[season]||1.0;
+    const gross=budget*gm*cm*seasM*(1+(Math.random()*.16-.08));
+    const distShare=gross*(distSplit/100);
+    const studioGross=gross-distShare;
+    const taxDed=studioGross*(taxRate/100);
+    const netProfit=studioGross-taxDed-budget;
+    const roi=(netProfit/budget)*100;
+    const conf=Math.min(95,55+gm*7+cm*6+(Math.random()*8));
+    const risk=roi>150?'Low':roi>50?'Medium':'High';
+    const riskColor=risk==='Low'?'#00A841':risk==='Medium'?'#F6DB35':'#EE5454';
+
+    // Done state
+    btn.textContent='✓ RESULTS READY!';
+    btn.style.background='#00A841';
+    btn.style.color='#fff';
+
+    // Fill modal
+    const fmt=v=>v>=1e9?`$${(v/1e9).toFixed(1)}B`:v>=1e6?`$${(v/1e6).toFixed(0)}M`:`$${Math.round(v).toLocaleString()}`;
+    document.getElementById('roiResult').textContent=`+${roi.toFixed(1)}%`;
+    document.getElementById('roiResult').style.color=riskColor;
+    document.getElementById('profitResult').textContent=fmt(netProfit);
+    document.getElementById('profitResult').style.color='#00A841';
+    document.getElementById('riskResult').textContent=risk.toUpperCase();
+    document.getElementById('riskResult').style.color=riskColor;
+    document.getElementById('riskResult').style.borderColor=riskColor;
+
+    const bars=[
+      {l:"Gross Revenue",v:gross,c:"#4C69F6",max:gross},
+      {l:"Distributor Cut",v:distShare,c:"#714B96",max:gross},
+      {l:"Tax Deduction",v:taxDed,c:"#EE5454",max:gross},
+      {l:"Net Profit",v:Math.max(0,netProfit),c:"#00A841",max:gross},
+    ];
+    document.getElementById('breakdownBars').innerHTML=bars.map(b=>`
+      <div>
+        <div style="display:flex;justify-content:space-between;font-family:'Plus Jakarta Sans';font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px">
+          <span style="color:var(--on-sv)">${b.l}</span><span style="color:${b.c}">${fmt(b.v)}</span>
+        </div>
+        <div style="height:14px;background:var(--sc);width:100%"><div style="height:100%;width:0;background:${b.c};transition:width .7s ease" data-target="${(b.v/b.max*100).toFixed(1)}"></div></div>
+      </div>`).join('');
+
+    setTimeout(()=>{
+      document.querySelectorAll('#breakdownBars div div:last-child').forEach(el=>{
+        el.style.width=el.dataset.target+'%';
+      });
+    },50);
+
+    document.getElementById('resultsModal').style.display='flex';
+    setTimeout(()=>{ btn.textContent='⚡ CRUNCH THE NUMBERS'; btn.style.background='var(--blue)'; btn.style.color='#fff'; },3000);
+  }, 2200);
+}
+
+function closeModal(){
+  document.getElementById('resultsModal').style.display='none';
+}
+
+// ── Scanner ────────────────────────────────────────────────
+function scanConcepts(){
+  const concept=document.getElementById('conceptInput').value.trim();
+  const btn=document.getElementById('scanBtn');
+  const resEl=document.getElementById('scannerResults');
+  if(!concept){resEl.innerHTML='<p style="color:var(--on-sv);font-size:12px;padding:16px;text-align:center">Please enter a concept first.</p>';return;}
+
+  btn.textContent='⏳ SCANNING IP DATABASE...';
+  btn.style.background='#1a1c1e';
+  resEl.innerHTML=[1,2,3].map(()=>`<div class="shimmer" style="height:64px;margin-bottom:8px"></div>`).join('');
+
+  setTimeout(()=>{
+    btn.textContent='🔍 Scan for Matching IPs';
+    btn.style.background='var(--purple)';
+
+    const lower=concept.toLowerCase();
+    const scored=NLP_DB.map(ip=>{
+      let s=0;
+      if(lower.includes(ip.genre.toLowerCase()))s+=.25;
+      ip.tags.forEach(t=>{if(lower.includes(t)||t.includes(lower.split(' ')[0]))s+=.1;});
+      s+=Math.random()*.2;
+      return{...ip,score:Math.min(.98,Math.max(.25,s))};
+    }).sort((a,b)=>b.score-a.score);
+
+    resEl.innerHTML=`
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="color:var(--green)">✦</span>
+        <span class="font-headline font-black text-sm uppercase">${scored.length} Matching IPs Found</span>
+      </div>
+      ${scored.map((m,i)=>{
+        const sc=Math.round(m.score*100);
+        const col=sc>=80?'#00A841':sc>=60?'#4C69F6':'#F6DB35';
+        const gCol=GENRE_COLORS[m.genre]||'#4C69F6';
+        return`<div class="match-card p-4" style="border-left-color:${col}">
+          <div style="display:flex;align-items:start;gap:12px">
+            <span class="font-headline font-black" style="font-size:32px;opacity:.15;min-width:24px;line-height:1">${i+1}</span>
+            <div style="flex:1">
+              <div style="display:flex;align-items:start;justify-content:space-between;gap:8px;margin-bottom:4px">
+                <div>
+                  <span class="font-headline font-black text-sm uppercase">${m.title}</span><br>
+                  <span style="font-family:'Plus Jakarta Sans';font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:1px 5px;background:${gCol};color:${m.genre==='Animation'?'#1a1c1e':'#fff'}">${m.genre}</span>
+                  <span style="font-family:'Plus Jakarta Sans';font-size:9px;color:var(--on-sv);margin-left:6px">${m.year} · BO: $${m.bo>=1000?(m.bo/1000).toFixed(1)+'B':m.bo+'M'}M</span>
+                </div>
+                <div style="text-align:right">
+                  <span class="font-headline font-black" style="font-size:24px;color:${col}">${sc}%</span><br>
+                  <span style="font-family:'Plus Jakarta Sans';font-size:9px;color:var(--on-sv)">${sc>=80?'HIGH MATCH':sc>=60?'STRONG':'MODERATE'}</span>
+                </div>
+              </div>
+              <p style="font-size:11px;color:var(--on-sv);font-style:italic">"${m.desc}"</p>
+              <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${m.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(0,0,0,.06);margin-top:16px">
+        <div style="background:var(--sc-lowest);padding:16px;text-align:center"><p class="tag" style="margin-bottom:4px">Avg BO</p><p class="font-headline font-black text-xl" style="color:var(--blue)">$${Math.round(scored.reduce((s,m)=>s+m.bo,0)/scored.length)}M</p></div>
+        <div style="background:var(--sc-lowest);padding:16px;text-align:center"><p class="tag" style="margin-bottom:4px">Avg ROI</p><p class="font-headline font-black text-xl" style="color:var(--green)">+${Math.round(scored.reduce((s,m)=>s+m.roi,0)/scored.length)}%</p></div>
+        <div style="background:var(--sc-lowest);padding:16px;text-align:center"><p class="tag" style="margin-bottom:4px">Top Match</p><p class="font-headline font-black text-xl" style="color:var(--yellow)">${Math.round(scored[0].score*100)}%</p></div>
+      </div>`;
+  }, 1800);
+}
+
+// ── Production ─────────────────────────────────────────────
+function renderProduction(){
+  const summary=[
+    {l:"Active Ventures",v:"4",c:"#4C69F6"},
+    {l:"Total Budget",v:"$660M",c:"#EE5454"},
+    {l:"Projected Revenue",v:"$2.6B",c:"#00A841"},
+    {l:"Avg Progress",v:"47%",c:"#F6DB35"},
+  ];
+  document.getElementById('prodStats').innerHTML=summary.map(s=>`
+    <div class="panel p-5 flex flex-col gap-2">
+      <p class="tag" style="color:var(--on-sv)">${s.l}</p>
+      <p class="font-headline font-black text-3xl" style="color:${s.c}">${s.v}</p>
+    </div>`).join('');
+
+  const cards=[
+    {title:"NEON NIGHTS",genre:"Sci-Fi",budget:"$120M",rev:"$480M",director:"Lyra Mune",risk:"Low",pct:72,c:"#4C69F6",phases:["done","done","active","upcoming","upcoming"]},
+    {title:"GHOST PROTOCOL 8",genre:"Action",budget:"$165M",rev:"$720M",director:"Sable Crown",risk:"Low",pct:91,c:"#F6DB35",phases:["done","done","done","active","upcoming"]},
+    {title:"VOID SEEKER II",genre:"Sci-Fi",budget:"$95M",rev:"$310M",director:"Marcus Sol",risk:"Medium",pct:18,c:"#00A841",phases:["done","active","upcoming","upcoming","upcoming"]},
+    {title:"CHROME DEITY 2",genre:"Fantasy",budget:"$280M",rev:"$1.1B",director:"Aria Voss",risk:"Medium",pct:5,c:"#714B96",phases:["active","upcoming","upcoming","upcoming","upcoming"]},
+  ];
+  const phaseLabels=["Development","Pre-Prod","Production","Post-Prod","Distribution"];
+  const riskCol={Low:"#00A841",Medium:"#F6DB35",High:"#EE5454"};
+  document.getElementById('ventureCards').innerHTML=cards.map(c=>`
+    <div class="panel p-0 overflow-hidden">
+      <div style="height:4px;background:${c.c}"></div>
+      <div class="p-6">
+        <div style="display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:12px">
+          <div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+              <span style="font-family:'Plus Jakarta Sans';font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px;background:${GENRE_COLORS[c.genre]||'#4C69F6'};color:${c.genre==='Animation'?'#1a1c1e':'#fff'}">${c.genre}</span>
+              <span style="font-family:'Plus Jakarta Sans';font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px;border:1px solid ${riskCol[c.risk]};color:${riskCol[c.risk]}">${c.risk} Risk</span>
+            </div>
+            <h3 class="font-headline font-black text-2xl uppercase">${c.title}</h3>
+          </div>
+          <div style="text-align:right">
+            <p class="font-headline font-black text-3xl" style="color:${c.c}">${c.pct}%</p>
+            <p class="tag" style="color:var(--on-sv)">Complete</p>
+          </div>
+        </div>
+        <div style="height:12px;background:var(--sc);width:100%;margin-bottom:16px;overflow:hidden">
+          <div style="height:100%;width:${c.pct}%;background:${c.c};transition:width 1s ease;background-image:repeating-linear-gradient(90deg,transparent,transparent 8px,rgba(255,255,255,.08) 8px,rgba(255,255,255,.08) 10px)"></div>
+        </div>
+        <!-- Phase timeline -->
+        <div style="display:flex;align-items:center;gap:2px;margin-bottom:16px">
+          ${c.phases.map((status,i)=>`
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+              <div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;border:2px solid;${status==='done'?'background:#00A841;border-color:#00A841;':status==='active'?'background:#4C69F6;border-color:#4C69F6;':'background:transparent;border-color:rgba(0,0,0,.15);'}">
+                ${status==='done'?'<span style="color:#fff;font-size:10px">✓</span>':status==='active'?'<span style="color:#fff;font-size:8px">●</span>':'<span style="color:rgba(0,0,0,.2);font-size:8px">○</span>'}
+              </div>
+              <span style="font-family:'Plus Jakarta Sans';font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;text-align:center;color:${status==='done'?'#00A841':status==='active'?'#4C69F6':'rgba(0,0,0,.25)'}">${phaseLabels[i].split(' ').join('<br>')}</span>
+            </div>
+            ${i<c.phases.length-1?`<div style="height:2px;flex:1;background:${c.phases[i+1]!=='upcoming'?'#00A841':'rgba(0,0,0,.08)'}"></div>`:''}
+          `).join('')}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+          ${[{l:"Budget",v:c.budget},{l:"Projected",v:c.rev},{l:"Director",v:c.director}].map(kpi=>`
+            <div style="background:var(--sc);padding:10px">
+              <p class="tag" style="color:var(--on-sv);margin-bottom:3px">${kpi.l}</p>
+              <p class="font-headline font-black text-sm" style="color:${c.c}">${kpi.v}</p>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Vault ──────────────────────────────────────────────────
+let vaultData=[...VAULT_RECORDS];
+function renderVault(){
+  const q=document.getElementById('vaultSearch')?.value?.toLowerCase()||'';
+  const filtered=vaultData.filter(r=>r.title.toLowerCase().includes(q)||r.director.toLowerCase().includes(q));
+  document.getElementById('vaultTable').innerHTML=`
+    <thead><tr style="background:var(--sc)">
+      ${['Title','Genre','Year','Budget','Revenue','ROI','Director'].map(h=>`<th style="padding:12px 20px;text-align:left;font-family:'Plus Jakarta Sans';font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--on-sv);white-space:nowrap">${h}</th>`).join('')}
+    </tr></thead>
+    <tbody>
+      ${filtered.map(r=>{
+        const gc=GENRE_COLORS[r.genre]||'#4C69F6';
+        const rc=r.roi>=200?'#00A841':r.roi>=150?'#4C69F6':'#F6DB35';
+        return`<tr style="border-top:1px solid rgba(0,0,0,.04);cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--sc-low)'" onmouseout="this.style.background=''">
+          <td style="padding:14px 20px;font-family:'Space Grotesk';font-weight:900;font-size:12px;text-transform:uppercase">${r.title}</td>
+          <td style="padding:14px 20px"><span style="font-family:'Plus Jakarta Sans';font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px;background:${gc};color:${r.genre==='Animation'?'#1a1c1e':'#fff'}">${r.genre}</span></td>
+          <td style="padding:14px 20px;font-family:'Plus Jakarta Sans';font-size:11px;color:var(--on-sv)">${r.year}</td>
+          <td style="padding:14px 20px;font-family:'Plus Jakarta Sans';font-size:11px;color:var(--on-sv)">$${r.budget}M</td>
+          <td style="padding:14px 20px;font-family:'Space Grotesk';font-weight:700;font-size:13px;color:var(--blue)">$${r.revenue}M</td>
+          <td style="padding:14px 20px;font-family:'Space Grotesk';font-weight:900;font-size:16px;color:${rc}">+${r.roi}%</td>
+          <td style="padding:14px 20px;font-family:'Plus Jakarta Sans';font-size:11px;color:var(--on-sv)">${r.director}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>`;
+}
+
+function filterVault(){renderVault();}
+function sortVault(key){
+  vaultSortKey=key;
+  vaultData=[...VAULT_RECORDS].sort((a,b)=>b[key]-a[key]);
+  ['roi','revenue','year'].forEach(k=>{
+    const el=document.getElementById('sort-'+k);
+    if(el){el.style.borderColor=k===key?'var(--green)':'';el.style.color=k===key?'var(--green)':'var(--on-sv)';}
+  });
+  renderVault();
+}
+
+// ── Market Page ────────────────────────────────────────────
+function initMarketPage(){}
+
+function renderMarket(){
+  // Gauge animation
+  const gaugeEl=document.getElementById('gaugeFill');
+  const needleEl=document.getElementById('gaugeNeedle');
+  const dotEl=document.getElementById('gaugeDot');
+  if(gaugeEl){
+    const score=74;
+    const dashOffset=251.2*(1-score/100);
+    setTimeout(()=>{
+      gaugeEl.style.strokeDashoffset=dashOffset;
+      const angle=-90+(score/100)*180;
+      needleEl.setAttribute('transform',`rotate(${angle},100,100)`);
+    },200);
+  }
+  // Genre momentum
+  document.getElementById('genreMomentum').innerHTML=GENRE_MOMENTUM.map(g=>`
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:8px;height:32px;background:${g.color};flex-shrink:0"></div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;font-family:'Space Grotesk';font-size:11px;font-weight:900;text-transform:uppercase;margin-bottom:4px">
+          <span>${g.genre}</span>
+          <span style="color:${g.trend>0?'#00A841':'#EE5454'}">${g.trend>0?'+':''}${g.trend}%</span>
+        </div>
+        <div style="height:6px;background:var(--sc);width:100%">
+          <div style="height:100%;width:${Math.abs(g.trend)*10}%;background:${g.color};transition:width .8s ease"></div>
+        </div>
+      </div>
+      <span style="font-size:14px">${g.trend>0?'↑':'↓'}</span>
+    </div>`).join('');
+
+  // Market cards
+  document.getElementById('marketCards').innerHTML=MARKETS.map(m=>`
+    <div style="background:var(--sc-lowest);padding:16px;cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--sc)'" onmouseout="this.style.background='var(--sc-lowest)'">
+      <span style="font-size:18px">${m.flag}</span>
+      <p style="font-family:'Plus Jakarta Sans';font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--on-sv);margin:6px 0 2px">${m.region}</p>
+      <p class="font-headline font-black" style="font-size:22px;color:${m.growth>=0?'#4C69F6':'#EE5454'}">${m.growth>=0?'+':''}${m.growth}%</p>
+    </div>`).join('');
+
+  // Oracle insights
+  document.getElementById('insightFeed').innerHTML=INSIGHTS.map((ins,i)=>`
+    <div style="background:rgba(0,0,0,.25);padding:16px;border:1px solid rgba(255,255,255,.1)">
+      <div style="display:flex;gap:10px">
+        <span class="font-headline font-black" style="color:var(--yellow);font-size:11px;flex-shrink:0">#${String(i+1).padStart(2,'0')}</span>
+        <p style="font-family:'Work Sans';font-size:12px;color:rgba(255,255,255,.8);font-style:italic;line-height:1.6">"${ins}"</p>
+      </div>
+    </div>`).join('');
+}
+
+// ── Init ───────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  initDashboard();
+  renderMarket();
+  // Animate bars after short delay
+  setTimeout(()=>{
+    document.querySelectorAll('[data-animate-width]').forEach(el=>{
+      el.style.width=el.dataset.animateWidth;
+    });
+  }, 300);
+});
+</script>
+</body>
+</html>

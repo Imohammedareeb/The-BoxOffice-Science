@@ -1,0 +1,30 @@
+# Box Office Science — Backend Requirements (MongoDB stack)
+# Install: pip install -r requirements.txt
+
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.1
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+email-validator>=2.1.0
+
+# MongoDB — async driver + ODM
+# Pinned: beanie 2.x is an incompatible rewrite (drops the motor init API this
+# app uses). Keep the 1.x line with a matching motor/pymongo trio.
+pymongo>=4.6,<4.9
+motor>=3.4,<3.6
+beanie>=1.26,<2
+
+python-dotenv>=1.0.1
+httpx>=0.27.0
+slowapi>=0.1.9
+python-jose[cryptography]>=3.3.0
+# passlib 1.7.4 is incompatible with bcrypt 4.1+ (its backend probe passes a
+# >72-byte secret that newer bcrypt rejects). Pin bcrypt to the last 4.0.x.
+passlib[bcrypt]>=1.7.4
+bcrypt==4.0.1
+
+# Dev/Test
+pytest>=8.2.2
+pytest-asyncio>=0.23.7
+black>=24.4.2
+ruff>=0.5.0

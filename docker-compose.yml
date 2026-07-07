@@ -1,0 +1,72 @@
+services:
+  # ─────────────────────────────────────────
+  # Frontend — Next.js
+  # ─────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # NEXT_PUBLIC_* vars are inlined at build time and run in the browser,
+        # so this must be the host-reachable URL, not the internal service name.
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    environment:
+      # Server-side only: the Next.js middleware verifies the bos_session JWT with
+      # this key, so it MUST match the backend's SECRET_KEY or every protected
+      # route redirects back to /login (signature mismatch).
+      - JWT_SECRET=${SECRET_KEY:-dev-secret-change-in-production}
+    depends_on:
+      - backend
+    networks:
+      - boxoffice-net
+
+  # ─────────────────────────────────────────
+  # Backend — FastAPI
+  # ─────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    # Dev-only: hot reload. Production (Render) uses the Dockerfile CMD with $PORT.
+    command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017
+      - MONGODB_DB=${MONGODB_DB:-boxoffice}
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-change-in-production}
+      - ALLOWED_ORIGINS=http://localhost:3000
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    networks:
+      - boxoffice-net
+
+  # ─────────────────────────────────────────
+  # Database — MongoDB
+  # ─────────────────────────────────────────
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - boxoffice-net
+
+volumes:
+  mongo_data:
+
+networks:
+  boxoffice-net:
+    driver: bridge
