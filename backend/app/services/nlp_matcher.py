@@ -184,7 +184,7 @@ def match_concepts(concept: str, top_k: int = 5) -> list[NLPMatchResponse]:
     tokens = _tokenize(concept)
     if len(tokens) < 3:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail=(
                 "Concept is too vague — please provide at least 3 descriptive keywords. "
                 "Example: 'a space opera about survival and alien contact'."

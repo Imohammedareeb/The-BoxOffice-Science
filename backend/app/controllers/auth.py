@@ -154,7 +154,7 @@ async def update_me(
         new_name = str(body["display_name"]).strip()
         if len(new_name) < 2 or len(new_name) > 80:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=422,
                 detail="display_name must be 2-80 characters.",
             )
         current_user.display_name = new_name

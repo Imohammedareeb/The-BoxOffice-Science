@@ -34,8 +34,18 @@ limiter = Limiter(key_func=get_remote_address, default_limits=["200/minute"])
 async def lifespan(app: FastAPI):
     settings.validate_security()
     logger.info("⚡ Box Office Science API starting up...")
-    await init_db()
-    await run_seed()
+    try:
+        await init_db()
+        await run_seed()
+    except Exception as exc:
+        logger.error(
+            "❌ MongoDB connection FAILED: %s\n"
+            "   → Check the MONGODB_URI env var (username/password) and, in MongoDB "
+            "Atlas, verify Database Access (the db user + password) and Network "
+            "Access (allow 0.0.0.0/0). 'bad auth' means the credentials are wrong.",
+            exc,
+        )
+        raise
     logger.info("✅ MongoDB connected and seeded.")
     yield
     logger.info("🛑 Shutting down — closing MongoDB client.")

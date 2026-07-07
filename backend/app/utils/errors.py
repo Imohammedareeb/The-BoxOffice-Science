@@ -37,7 +37,7 @@ class NotFoundError(BOSException):
 
 class ValidationError(BOSException):
     """Business-logic validation error (422)."""
-    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+    status_code = 422
     error_code = "VALIDATION_ERROR"
     message = "Invalid input data."
 
@@ -122,7 +122,7 @@ async def validation_exception_handler(
         for e in exc.errors()
     ]
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=422,
         content={
             "success": False,
             "error": {
